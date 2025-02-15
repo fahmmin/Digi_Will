@@ -58,9 +58,10 @@ export default function Marketplace() {
                     <div className="text-white text-center mt-10">Loading...</div>
                 ) : (
                     <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
-                        {data.map((value, index) => {
-                            return <NFTTile data={value} key={index}></NFTTile>;
-                        })}
+{data.slice().reverse().map((value, index) => {
+    return <NFTTile data={value} key={index}></NFTTile>;
+})}
+
                     </div>
                 )}
             </div>            
