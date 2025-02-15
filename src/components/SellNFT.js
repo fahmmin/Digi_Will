@@ -151,7 +151,7 @@ export default function SellNFT () {
             updateMessage("");
             updateFormParams({ contractId: '', description: '' });
             setBeneficiaries([{ address: '', percentage: '' }]);
-            window.location.replace("/")
+            window.location.replace("/marketplace")
         }
         catch(e) {
             alert( "Upload error"+e )
