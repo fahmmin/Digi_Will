@@ -9,9 +9,9 @@ Specifically, WillGuard allows for the setting of beneficiaries to the assets in
 
 TOOLS USED
 ----------
->Alchemy SDK\n
->Pinata Database\n
->Firebase\n
->React\n
->Solidity\n
->tailwindcss\n
+>Alchemy SDK
+>Pinata Database
+>Firebase
+>React
+>Solidity
+>tailwindcss
