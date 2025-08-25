@@ -10,41 +10,67 @@ export default function Marketplace() {
     const [dataFetched, updateFetched] = useState(false);
 
     async function getAllNFTs() {
-        const ethers = require("ethers");
-        //After adding your Hardhat network to your metamask, this code will get providers and signers
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        //Pull the deployed contract instance
-        let contract = new ethers.Contract(MarketplaceJSON.address, MarketplaceJSON.abi, signer)
-        //create an NFT Token
-        let transaction = await contract.getAllNFTs()
-        
-        //Fetch all the details of every NFT from the contract and display
-        const items = await Promise.all(transaction.map(async i => {
-            var tokenURI = await contract.tokenURI(i.tokenId);
-            console.log("getting this tokenUri", tokenURI);
-            tokenURI = GetIpfsUrlFromPinata(tokenURI);
-            let meta = await axios.get(tokenURI);
-            meta = meta.data;
+        try {
+            const ethers = require("ethers");
 
-            let price = ethers.utils.formatUnits(i.price.toString(), 'ether');
-            let item = {
-                price,
-                tokenId: i.tokenId.toNumber(),
-                seller: i.seller,
-                owner: i.owner,
-                image: meta.image,
-                name: meta.name,
-                description: meta.description,
+            // Check if ethereum is available and connected
+            if (!window.ethereum || !window.ethereum.isConnected()) {
+                console.log("Wallet not connected");
+                updateData([]);
+                updateFetched(true);
+                return;
             }
-            return item;
-        }))
 
-        updateFetched(true);
-        updateData(items);
+            //After adding your Hardhat network to your metamask, this code will get providers and signers
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+
+            // Verify signer has an account
+            try {
+                await signer.getAddress();
+            } catch (error) {
+                console.log("Error getting address:", error.message);
+                updateData([]);
+                updateFetched(true);
+                return;
+            }
+
+            //Pull the deployed contract instance
+            let contract = new ethers.Contract(MarketplaceJSON.address, MarketplaceJSON.abi, signer)
+            //create an NFT Token
+            let transaction = await contract.getAllNFTs()
+
+            //Fetch all the details of every NFT from the contract and display
+            const items = await Promise.all(transaction.map(async i => {
+                var tokenURI = await contract.tokenURI(i.tokenId);
+                console.log("getting this tokenUri", tokenURI);
+                tokenURI = GetIpfsUrlFromPinata(tokenURI);
+                let meta = await axios.get(tokenURI);
+                meta = meta.data;
+
+                let price = ethers.utils.formatUnits(i.price.toString(), 'ether');
+                let item = {
+                    price,
+                    tokenId: i.tokenId.toNumber(),
+                    seller: i.seller,
+                    owner: i.owner,
+                    image: meta.image,
+                    name: meta.name,
+                    description: meta.description,
+                }
+                return item;
+            }))
+
+            updateFetched(true);
+            updateData(items);
+        } catch (error) {
+            console.error("Error in getAllNFTs:", error);
+            updateData([]);
+            updateFetched(true);
+        }
     }
 
-    if(!dataFetched)
+    if (!dataFetched)
         getAllNFTs();
 
     return (
@@ -58,13 +84,13 @@ export default function Marketplace() {
                     <div className="text-white text-center mt-10">Loading...</div>
                 ) : (
                     <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
-{data.slice().reverse().map((value, index) => {
-    return <NFTTile data={value} key={index}></NFTTile>;
-})}
+                        {data.slice().reverse().map((value, index) => {
+                            return <NFTTile data={value} key={index}></NFTTile>;
+                        })}
 
                     </div>
                 )}
-            </div>            
+            </div>
         </div>
     );
 }
